@@ -1,7 +1,15 @@
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
 
-from routes.items import app
+from .routes import items
+
+app = FastAPI(
+    title="Example API",
+    description="A simple example API with integrated MCP server",
+    version="0.1.0",
+)
+
+app.include_router(items.router)
 
 mcp = FastApiMCP(
     app,
