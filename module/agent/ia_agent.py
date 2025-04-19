@@ -1,6 +1,7 @@
 import os
-from langchain_core.messages import AIMessage
+import logging
 
+from langchain_core.messages import AIMessage, HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
@@ -11,8 +12,9 @@ load_dotenv()
 
 
 client = MultiServerMCPClient({
-    "test": {
+    "items": {
             "url": "http://localhost:8000/mcp",
+            "transport": "sse",
         },
 })
 
@@ -26,24 +28,32 @@ model  = ChatOpenAI(
 
 
 async def agent_loop():
-    async with MultiServerMCPClient(
-        {
-            "test": {
-                "url": "http://localhost:8000/mcp",
-                "transport": "sse",
-            },
-        }
-    ) as client:
+    history = []
+    
+    async with client:
         tools = client.get_tools()
-        # for tool in tools:
-        #     print(tool.name, tool.description)
-            
-        agent = create_react_agent(model, tools)
+        
+        for tool in tools:
+            print(f"Tool: {tool.name}")
+            print(f"Description: {tool.description}")
+            print("-" * 20)
+        
+        agent = create_react_agent(
+            model,
+            tools=tools,
+            # debug=True,
+            # version="v1",
+            version="v2",
+            )
 
         while True:
             user_input = input("Digite sua mensagem: ")
-            response = await agent.ainvoke({"messages": user_input})
             
-            for message in response['messages'][1:]:
-                print(message.content)
+            history.append(HumanMessage(content=user_input))
+            
+            response = await agent.ainvoke({"messages": history})
+            
+            ai_response = response["messages"][-1]
+            print(ai_response.content)
+            history.append(ai_response)
             

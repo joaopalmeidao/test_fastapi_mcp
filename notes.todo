@@ -1,0 +1,9 @@
+- Erro ao definir type list:
+openai.BadRequestError: 
+Error code: 400 - {'error': 
+    {'message': 
+        "Invalid schema for function 'create_item': In context=('properties', 'itemTags'), array schema missing items.", 
+        'type': 'invalid_request_error', 
+        'param': 'tools[1].function.parameters', 
+        'code': 'invalid_function_parameters'}
+    }
