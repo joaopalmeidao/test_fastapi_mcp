@@ -1,6 +1,9 @@
 import os
 import logging
 
+
+from typing import List
+from langchain_core.messages import BaseMessage
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_openai import ChatOpenAI
@@ -26,8 +29,18 @@ model  = ChatOpenAI(
     temperature=0,
     )
 
+async def process_agent_messages(messages: List[BaseMessage]):
+    async with client:
+        tools = client.get_tools()
+        agent = create_react_agent(
+            model,
+            tools=tools,
+            version="v2",
+        )
+        response = await agent.ainvoke({"messages": messages})
+        return response["messages"]
 
-async def agent_loop():
+async def agent_test_loop():
     history = []
     
     async with client:

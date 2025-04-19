@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
 
-from .routes import items
+from .routes import items, agent
 
 app = FastAPI(
     title="Example API",
@@ -10,6 +10,7 @@ app = FastAPI(
 )
 
 app.include_router(items.router)
+app.include_router(agent.router)
 
 mcp = FastApiMCP(
     app,
